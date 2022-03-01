@@ -61,9 +61,16 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# MacOs
+.DS_Store
+
 # Flask stuff:
 instance/
 .webassets-cache
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
 
 # Scrapy stuff:
 .scrapy
