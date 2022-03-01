@@ -5,7 +5,7 @@ from aws_cdk import (
     aws_ecs as ecs
 )
 
-# Stack that encapsulates running containarized nomic-bot.
+# Stack that encapsulates running containerized nomic-bot.
 
 
 class NomicBotStack(Stack):

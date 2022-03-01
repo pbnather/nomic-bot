@@ -5,9 +5,9 @@ For now it's functionality is limited though.
 - Bot source code is in `./bot` directory.
 - CDK stacks are in `./nomic_bot` directory.
 
-### prerequisites:
+### prerequisites
 - AWS account,
-- Registered (Discord Bot)[https://realpython.com/how-to-make-a-discord-bot-python/],
+- Registered [Discord Bot](https://realpython.com/how-to-make-a-discord-bot-python/),
 - `.env` file in `./bot` folder with `DISCORD_TOKEN` variable.
 
 ## Install vitrualenv and dependencies
@@ -17,8 +17,8 @@ For now it's functionality is limited though.
 
 ## Deploy bot on AWS (CDK)
 
-1. Install (aws-cli)[https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html]. 
-2. Configure (access keys)[https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html] to your AWS account.
+1. Install [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). 
+2. Configure [access keys](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) to your AWS account.
 3. `cdk bootstrap` — create once supporting constructs in your account.
 4. `cdk synth` — create your cloudformation files.
 5. `cdk deploy` — deploy your stacks to AWS.
