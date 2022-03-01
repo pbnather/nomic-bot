@@ -5,6 +5,11 @@ For now it's functionality is limited though.
 - Bot source code is in `./bot` directory.
 - CDK stacks are in `./nomic_bot` directory.
 
+### prerequisites:
+- AWS account,
+- Registered (Discord Bot)[https://realpython.com/how-to-make-a-discord-bot-python/],
+- `.env` file in `./bot` folder with `DISCORD_TOKEN` variable.
+
 ## Install vitrualenv and dependencies
 1. `python3 -m venv .venv`
 2. `source .venv/bin/activate` (`.venv\Scripts\activate.bat` on Windows)
