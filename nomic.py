@@ -79,7 +79,7 @@ async def show_rule(ctx, number: str):
         await ctx.send(embed=embed)
     else:
         response = "Nie ma takiej zasady"
-    await ctx.send(response)
+        await ctx.send(response)
 
 
 @bot.command(name="const")
