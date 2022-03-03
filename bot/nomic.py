@@ -65,7 +65,7 @@ def create_embed(const, embed):
         )
 
 
-@bot.command(name="rule")
+@bot.command(name="rule", brief="Shows rule content")
 async def show_rule(ctx, number: str):
     if number in rules:
         embed = Embed(
@@ -82,7 +82,7 @@ async def show_rule(ctx, number: str):
         await ctx.send(response)
 
 
-@bot.command(name="const")
+@bot.command(name="const", brief="Shows all const rules")
 async def show_rule(ctx):
     embed = Embed(
         title="Zasady konstytucyjne",
@@ -92,7 +92,7 @@ async def show_rule(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name="rules")
+@bot.command(name="rules", brief="Shows all no-const rules")
 async def show_rule(ctx):
     embed = Embed(
         title="Zasady pozakonstytucyjne",
@@ -100,6 +100,13 @@ async def show_rule(ctx):
     )
     create_embed(False, embed=embed)
     await ctx.send(embed=embed)
+
+
+@bot.command(name="update", brief="Updates rules from Gitlab")
+async def update_rules(ctx):
+    parse_rules()
+    response = "Rules updated"
+    await ctx.send(response)
 
 
 parse_rules()
