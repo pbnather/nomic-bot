@@ -1,44 +1,13 @@
 # nomic.py
-# author: pbnather
+# author: pbnather, michsok
 import os
-import re
-import urllib.request
-from discord import Embed
 from discord.ext import commands
 from dotenv import load_dotenv
+from gitlab_api import GitlabAPI
 
 rules = {}
 
-
-def isRule(input):
-    pattern = re.compile(r"[0-9]+.")
-    is_rule = pattern.match(input, re.IGNORECASE)
-    return (is_rule, "`konst`" in input)
-
-
-def parse_rules():
-    with urllib.request.urlopen(
-        "https://gitlab.com/michsok/nomic/-/raw/main/README.md"
-    ) as f:
-        rule_started = False
-        rule_content = []
-        rule_number = ""
-        for line in f.readlines():
-            line = line.decode("utf-8")
-            (is_rule, _) = isRule(line)
-            if "## Zasady pozakonstytucyjne" in line:
-                continue
-            if is_rule:
-                if rule_started:
-                    rules[rule_number] = rule_content
-                    rule_content = []
-                    rule_number = ""
-                rule_started = True
-                rule_content.append(line)
-                rule_number = line.split(".")[0]
-            elif rule_started:
-                rule_content.append(line)
-        rules[rule_number] = rule_content
+gitlab_api = GitlabAPI()
 
 
 load_dotenv()
@@ -47,60 +16,88 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 bot = commands.Bot(command_prefix="!")
 
 
-def create_embed(const, embed):
-    for rule in rules.keys():
-        if const:
-            if "`konst`" not in rules[rule][0]:
-                continue
-        else:
-            if "`konst`" in rules[rule][0]:
-                continue
-        content = ""
-        for line in rules[rule][1:]:
-            content += line
-        embed.add_field(
-            name=rules[rule][0].replace("\n", ""),
-            value=content + "\n ",
-            inline=False,
-        )
-
-
-@bot.command(name="rule")
-async def show_rule(ctx, number: str):
-    if number in rules:
-        embed = Embed(
-            title=rules[number][0].replace("\n", ""),
-            color=0x16D3D3 if "`konst`" in rules[number][0] else 0xFB8B40,
-        )
-        content = ""
-        for line in rules[number][1:]:
-            content += line
-        embed.description = content
-        await ctx.send(embed=embed)
-    else:
-        response = "Nie ma takiej zasady"
+@bot.command(name='print-rule')
+async def print_rule(ctx):
+    try:
+        rule_id = ctx.message.content.split()[1]
+        rule_id = int(rule_id)
+    except ValueError:
+        response =f'{rule_id} is not a valid number.'
         await ctx.send(response)
 
-
-@bot.command(name="const")
-async def show_rule(ctx):
-    embed = Embed(
-        title="Zasady konstytucyjne",
-        color=0x16D3D3,
+    embed = gitlab_api.print_rule(
+        rule_number=rule_id
     )
-    create_embed(True, embed=embed)
+
     await ctx.send(embed=embed)
 
 
-@bot.command(name="rules")
-async def show_rule(ctx):
-    embed = Embed(
-        title="Zasady pozakonstytucyjne",
-        color=0xFB8B40,
-    )
-    create_embed(False, embed=embed)
+@bot.command(name='print-const')
+async def print_rule(ctx):
+
+    embed = gitlab_api.print_rules(rule_type='const')
+
     await ctx.send(embed=embed)
 
 
-parse_rules()
+@bot.command(name='print-not-const')
+async def print_rule(ctx):
+
+    embed = gitlab_api.print_rules(rule_type='not-const')
+
+    await ctx.send(embed=embed)
+
+
+@bot.command(name='print-all')
+async def print_rule(ctx):
+
+    embed = gitlab_api.print_rules(rule_type='all')
+
+    await ctx.send(embed=embed)
+
+
+@bot.command(name="add-rule")
+async def new_rule(ctx):
+    rule_content = list(' '.join((ctx.message.content.split(' ')[1:])).split('\n'))
+
+    embed = gitlab_api.add_rule(
+        player_name=ctx.author.display_name,
+        rule_content=rule_content
+    )
+    await ctx.send(embed=embed)
+
+
+@bot.command(name="edit-rule")
+async def edit_rule(ctx):
+    try:
+        rule_id = ctx.message.content.split()[1]
+        rule_id = int(rule_id)
+    except ValueError:
+        response =f'{rule_id} is not a valid number.'
+        await ctx.send(response)
+    rule_content = str(rule_id) + '. ' + ' '.join(ctx.message.content.split(' ')[2:])
+    rule_content = rule_content.split('\n')
+
+    embed = gitlab_api.edit_rule(
+        player_name=ctx.author.display_name,
+        rule_id=rule_id,
+        rule_content=rule_content
+    )
+    await ctx.send(embed=embed)
+
+
+@bot.command(name="transmute-rule")
+async def transmute_rule(ctx):
+    try:
+        rule_id = ctx.message.content.split()[1]
+        rule_id = int(rule_id)
+    except ValueError:
+        response =f'{rule_id} is not a valid number.'
+        await ctx.send(response)
+    embed = gitlab_api.transmute_rule(
+        player_name=ctx.author.display_name,
+        rule_id=rule_id
+    )
+    await ctx.send(embed=embed)
+
 bot.run(TOKEN)
