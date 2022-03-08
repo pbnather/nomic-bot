@@ -7,22 +7,22 @@ from gitlab_api import GitlabAPI
 
 rules = {}
 
+load_dotenv()
+
 gitlab_api = GitlabAPI()
 
-
-load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 bot = commands.Bot(command_prefix="!")
 
 
-@bot.command(name='print-rule')
+@bot.command(name='rule')
 async def print_rule(ctx):
     try:
         rule_id = ctx.message.content.split()[1]
         rule_id = int(rule_id)
     except ValueError:
-        response =f'{rule_id} is not a valid number.'
+        response = f'{rule_id} is not a valid number.'
         await ctx.send(response)
 
     embed = gitlab_api.print_rule(
@@ -32,7 +32,7 @@ async def print_rule(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name='print-const')
+@bot.command(name='const')
 async def print_rule(ctx):
 
     embed = gitlab_api.print_rules(rule_type='const')
@@ -40,7 +40,7 @@ async def print_rule(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name='print-not-const')
+@bot.command(name='rules')
 async def print_rule(ctx):
 
     embed = gitlab_api.print_rules(rule_type='not-const')
@@ -48,7 +48,7 @@ async def print_rule(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name='print-all')
+@bot.command(name='all')
 async def print_rule(ctx):
 
     embed = gitlab_api.print_rules(rule_type='all')
@@ -56,9 +56,10 @@ async def print_rule(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name="add-rule")
+@bot.command(name="add")
 async def new_rule(ctx):
-    rule_content = list(' '.join((ctx.message.content.split(' ')[1:])).split('\n'))
+    rule_content = list(
+        ' '.join((ctx.message.content.split(' ')[1:])).split('\n'))
 
     embed = gitlab_api.add_rule(
         player_name=ctx.author.display_name,
@@ -67,15 +68,16 @@ async def new_rule(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name="edit-rule")
+@bot.command(name="edit")
 async def edit_rule(ctx):
     try:
         rule_id = ctx.message.content.split()[1]
         rule_id = int(rule_id)
     except ValueError:
-        response =f'{rule_id} is not a valid number.'
+        response = f'{rule_id} is not a valid number.'
         await ctx.send(response)
-    rule_content = str(rule_id) + '. ' + ' '.join(ctx.message.content.split(' ')[2:])
+    rule_content = str(rule_id) + '. ' + \
+        ' '.join(ctx.message.content.split(' ')[2:])
     rule_content = rule_content.split('\n')
 
     embed = gitlab_api.edit_rule(
@@ -86,13 +88,13 @@ async def edit_rule(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name="transmute-rule")
+@bot.command(name="transmute")
 async def transmute_rule(ctx):
     try:
         rule_id = ctx.message.content.split()[1]
         rule_id = int(rule_id)
     except ValueError:
-        response =f'{rule_id} is not a valid number.'
+        response = f'{rule_id} is not a valid number.'
         await ctx.send(response)
     embed = gitlab_api.transmute_rule(
         player_name=ctx.author.display_name,

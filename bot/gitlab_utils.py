@@ -73,6 +73,12 @@ def parse_ruleset(
             if not skip_until_rule:
                 current_rule_content.append(line)
 
+    all_rules[current_rule_number] = Rule(
+        id=current_rule_number,
+        is_const=is_current_rule_const,
+        content=current_rule_content
+    )
+
     return all_rules
 
 

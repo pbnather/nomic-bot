@@ -8,8 +8,8 @@ from typing import (
 from discord import Embed
 import gitlab
 
-from bot.rules_api import RulesAPI
-from bot.gitlab_utils import parse_ruleset, Rule, make_rule_set
+from rules_api import RulesAPI
+from gitlab_utils import parse_ruleset, Rule, make_rule_set
 
 
 class GitlabAPI(RulesAPI):
@@ -19,19 +19,24 @@ class GitlabAPI(RulesAPI):
     RULES_PATH = 'README.md'
 
     def __init__(self):
-        self.token = os.getenv(self.GITLAB_PERSONAL_ACCESS_TOKEN_STRING_VARNAME)
+        self.token = os.getenv(
+            self.GITLAB_PERSONAL_ACCESS_TOKEN_STRING_VARNAME)
+        self.BRANCH = os.getenv("BRANCH", default="dev")
+        print(f'Connecting to branch: {self.BRANCH}')
         if self.token is None:
             raise ValueError(
                 f'Please fill `{self.GITLAB_PERSONAL_ACCESS_TOKEN_STRING_VARNAME}` env variable with '
                 f'Your Gitlab Personal Access Token.'
-                )
+            )
         self.gl = gitlab.Gitlab(private_token=self.token)
-        self.project = self.gl.projects.list(search=self.NOMIC_REPOSITORY_NAME, owned=True)[0]
+        self.project = self.gl.projects.list(
+            search=self.NOMIC_REPOSITORY_NAME, owned=True)[0]
 
     def print_rules(self, rule_type: str) -> Embed:
         assert rule_type in {'const', 'not-const', 'all'}
 
-        rules_raw = self.project.files.raw(file_path=self.RULES_PATH, ref=self.BRANCH)
+        rules_raw = self.project.files.raw(
+            file_path=self.RULES_PATH, ref=self.BRANCH)
         rules_raw = rules_raw.decode('UTF-8')
         rules = parse_ruleset(rules_raw)
         embed = Embed(
@@ -40,9 +45,11 @@ class GitlabAPI(RulesAPI):
 
         for rule_id, rule in rules.items():
             if (
-                    rule.is_const and (rule_type == 'const' or rule_type == 'all')
+                    rule.is_const and (
+                        rule_type == 'const' or rule_type == 'all')
             ) or (
-                    not rule.is_const and (rule_type == 'not-const' or rule_type == 'all')
+                    not rule.is_const and (
+                        rule_type == 'not-const' or rule_type == 'all')
             ):
                 embed.add_field(
                     name=str(rule_id),
@@ -54,7 +61,8 @@ class GitlabAPI(RulesAPI):
 
     def print_rule(self, rule_number: int) -> Embed:
 
-        rules_raw = self.project.files.raw(file_path=self.RULES_PATH, ref=self.BRANCH)
+        rules_raw = self.project.files.raw(
+            file_path=self.RULES_PATH, ref=self.BRANCH)
         rules_raw = rules_raw.decode('UTF-8')
         rules = parse_ruleset(rules_raw)
 
@@ -105,7 +113,6 @@ class GitlabAPI(RulesAPI):
             commit_message = f'Transmute rule {rule_number} by {player_name}'
             action_label = 'transmute'
 
-
         commit = self.project.commits.create(
             {
                 'branch': new_branch_name,
@@ -138,7 +145,8 @@ class GitlabAPI(RulesAPI):
             player_name: str,
     ) -> Embed:
 
-        rules_raw = self.project.files.raw(file_path=self.RULES_PATH, ref=self.BRANCH)
+        rules_raw = self.project.files.raw(
+            file_path=self.RULES_PATH, ref=self.BRANCH)
         rules_raw = rules_raw.decode('UTF-8')
         rules = parse_ruleset(rules_raw)
         new_rule_number = max(rules.keys()) + 1
@@ -179,7 +187,8 @@ class GitlabAPI(RulesAPI):
             rule_content: List[str],
             player_name: str,
     ) -> Embed:
-        rules_raw = self.project.files.raw(file_path=self.RULES_PATH, ref=self.BRANCH)
+        rules_raw = self.project.files.raw(
+            file_path=self.RULES_PATH, ref=self.BRANCH)
         rules_raw = rules_raw.decode('UTF-8')
         rules = parse_ruleset(rules_raw)
 
@@ -233,7 +242,8 @@ class GitlabAPI(RulesAPI):
             player_name: str,
     ) -> Embed:
 
-        rules_raw = self.project.files.raw(file_path=self.RULES_PATH, ref=self.BRANCH)
+        rules_raw = self.project.files.raw(
+            file_path=self.RULES_PATH, ref=self.BRANCH)
         rules_raw = rules_raw.decode('UTF-8')
         rules = parse_ruleset(rules_raw)
 
@@ -244,11 +254,13 @@ class GitlabAPI(RulesAPI):
             )
 
         if rules[rule_id].is_const:
-            rules[rule_id].content[0] = rules[rule_id].content[0].replace('`konst`', '').strip()
+            rules[rule_id].content[0] = rules[rule_id].content[0].replace(
+                '`konst`', '').strip()
             rules[rule_id].is_const = False
         else:
             rule_parts = rules[rule_id].content[0].split('.')
-            new_first_rule_line = rule_parts[0] + '. `konst`' + '.'.join(rule_parts[1:])
+            new_first_rule_line = rule_parts[0] + \
+                '. `konst`' + '.'.join(rule_parts[1:])
             rules[rule_id].content[0] = new_first_rule_line
 
         mr_web_url = self._create_mr_from_player_action_and_rule_set(
