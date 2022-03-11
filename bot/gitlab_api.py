@@ -1,6 +1,5 @@
 import copy
 import os
-from turtle import color
 from typing import (
     List,
     Dict
@@ -62,6 +61,12 @@ class GitlabAPI(RulesAPI):
             file_path=self.RULES_PATH, ref=self.BRANCH)
         rules_raw = rules_raw.decode('UTF-8')
         rules = parse_ruleset(rules_raw)
+
+        if rule_number not in rules:
+            return Embed(
+                title=f'There is no rule {rule_number}',
+                color=0xE74C3C
+            )
 
         rule = rules[rule_number]
         embed = Embed(
@@ -161,6 +166,7 @@ class GitlabAPI(RulesAPI):
 
         embed = Embed(
             title=f'New rule {new_rule_number} was proposed by {player_name}',
+            color=0x2ECC71,
             inline=False
         )
 
@@ -191,12 +197,14 @@ class GitlabAPI(RulesAPI):
         if rule_id not in rules:
             return Embed(
                 title=f'There is no rule {rule_id}',
+                color=0xE74C3C
             )
 
         # Trying to modify a const rule
         if rules[rule_id].is_const:
             return Embed(
                 title=f'Rule {rule_id} is const and can\'t be edited',
+                color=0xE74C3C
             )
         old_rule = copy.deepcopy(rules[rule_id])
 
@@ -211,6 +219,7 @@ class GitlabAPI(RulesAPI):
 
         embed = Embed(
             title=f'Edit of rule {rule_id} was proposed by {player_name}',
+            color=0x2ECC71,
             inline=False
         )
 
@@ -246,6 +255,7 @@ class GitlabAPI(RulesAPI):
         if rule_id not in rules:
             return Embed(
                 title=f'There is no rule {rule_id}',
+                color=0xE74C3C
             )
 
         if rules[rule_id].is_const:
@@ -267,6 +277,7 @@ class GitlabAPI(RulesAPI):
 
         embed = Embed(
             title=f'Transmutation of rule {rule_id} was proposed by {player_name}',
+            color=0x2ECC71,
             inline=False
         )
         embed.add_field(
