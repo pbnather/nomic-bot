@@ -1,5 +1,6 @@
 import copy
 import os
+from turtle import color
 from typing import (
     List,
     Dict
@@ -40,22 +41,18 @@ class GitlabAPI(RulesAPI):
         rules_raw = rules_raw.decode('UTF-8')
         rules = parse_ruleset(rules_raw)
         embed = Embed(
-            title='Const rules'
+            title='Const rules' if rule_type == "const" else "Rules",
+            color=0x16D3D3 if rule_type == "const" else 0xFB8B40
         )
 
-        for rule_id, rule in rules.items():
-            if (
-                    rule.is_const and (
-                        rule_type == 'const' or rule_type == 'all')
-            ) or (
-                    not rule.is_const and (
-                        rule_type == 'not-const' or rule_type == 'all')
-            ):
-                embed.add_field(
-                    name=str(rule_id),
-                    value=str(rule),
-                    inline=False
-                )
+        for rule in [rules[x] for x in rules.keys() if
+                     (rules[x].is_const if rule_type == "const" else not rules[x].is_const)]:
+            embed.add_field(
+                name=str(rule.id) +
+                ". `konst`" if rule.is_const else str(rule.id) + ".",
+                value='\n'.join(rule.content[1:]) + '\n',
+                inline=False
+            )
 
         return embed
 
@@ -68,13 +65,11 @@ class GitlabAPI(RulesAPI):
 
         rule = rules[rule_number]
         embed = Embed(
-            title=f'Rule {rule_number}'
+            title=str(rule.id) +
+            ". `konst`" if rule.is_const else str(rule.id) + ".",
+            color=0x16D3D3 if rule.is_const else 0xFB8B40
         )
-        embed.add_field(
-            name='',
-            value=str(rule),
-            inline=False
-        )
+        embed.description = '\n'.join(rule.content[1:]) + '\n'
         return embed
 
     def _create_mr_from_player_action_and_rule_set(
@@ -205,7 +200,7 @@ class GitlabAPI(RulesAPI):
             )
         old_rule = copy.deepcopy(rules[rule_id])
 
-        rules[rule_id].content = rule_content
+        rules[rule_id].content = rule_content + [" "]
 
         mr_web_url = self._create_mr_from_player_action_and_rule_set(
             player_name=player_name,

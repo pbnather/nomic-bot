@@ -5,19 +5,19 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from gitlab_api import GitlabAPI
 
-rules = {}
-
 load_dotenv()
 
+rules = {}
+players = os.getenv("PLAYERS").split(",")
+current_player = -1
 gitlab_api = GitlabAPI()
-
-TOKEN = os.getenv("DISCORD_TOKEN")
 
 bot = commands.Bot(command_prefix="!")
 
 
 @bot.command(name='rule')
 async def print_rule(ctx):
+    print(ctx)
     try:
         rule_id = ctx.message.content.split()[1]
         rule_id = int(rule_id)
@@ -51,8 +51,9 @@ async def print_rule(ctx):
 @bot.command(name='all')
 async def print_rule(ctx):
 
-    embed = gitlab_api.print_rules(rule_type='all')
-
+    embed = gitlab_api.print_rules(rule_type='const')
+    await ctx.send(embed=embed)
+    embed = gitlab_api.print_rules(rule_type='not-const')
     await ctx.send(embed=embed)
 
 
@@ -102,4 +103,7 @@ async def transmute_rule(ctx):
     )
     await ctx.send(embed=embed)
 
+# Starting the bot
+print(f'Players: {players}')
+TOKEN = os.getenv("DISCORD_TOKEN")
 bot.run(TOKEN)
