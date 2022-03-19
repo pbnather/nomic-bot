@@ -141,6 +141,8 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.BadArgument):
         await ctx.send('Not valid argument')
         return
+    print(error)
+    await ctx.send("`" + error + "`")
 
 
 # Starting the bot
